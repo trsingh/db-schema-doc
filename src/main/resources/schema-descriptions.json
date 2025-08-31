@@ -1,0 +1,72 @@
+{
+  "tables": {
+    "users": {
+      "description": "User management and authentication table containing user accounts and profiles",
+      "columns": {
+        "id": "Primary identifier for users, auto-generated unique key",
+        "username": "Unique username for login authentication and user identification",
+        "email": "User's email address for communication and account recovery",
+        "password": "Encrypted password hash for secure authentication",
+        "created_at": "Timestamp when the user account was created",
+        "updated_at": "Timestamp when the user record was last modified",
+        "status": "Account status indicating active, suspended, or deleted state"
+      }
+    },
+    "products": {
+      "description": "Product catalog containing all available products and their details",
+      "columns": {
+        "product_id": "Unique product identifier and primary key",
+        "name": "Product name or title for display purposes",
+        "description": "Detailed product description and specifications",
+        "price": "Current selling price in the base currency",
+        "category_id": "Foreign key reference to the product category",
+        "sku": "Stock Keeping Unit - unique product code for inventory",
+        "stock_quantity": "Current available inventory quantity",
+        "created_at": "Timestamp when the product was added to catalog"
+      }
+    },
+    "orders": {
+      "description": "Customer order transactions and order management data",
+      "columns": {
+        "order_id": "Unique order identifier and primary key",
+        "customer_id": "Foreign key reference to the customer who placed the order",
+        "order_date": "Date and time when the order was placed",
+        "status": "Current order status (pending, processing, shipped, delivered, cancelled)",
+        "total_amount": "Total order amount including tax and shipping",
+        "shipping_address": "Complete shipping address for order delivery",
+        "payment_method": "Payment method used for the transaction"
+      }
+    },
+    "customers": {
+      "description": "Customer information and contact details for order management",
+      "columns": {
+        "customer_id": "Primary identifier for customers",
+        "customer_name": "Full name of the customer",
+        "email": "Customer's email address for order notifications",
+        "phone": "Customer's contact phone number",
+        "address": "Customer's primary address",
+        "registration_date": "Date when customer account was created"
+      }
+    },
+    "order_items": {
+      "description": "Individual items within customer orders, linking orders to products",
+      "columns": {
+        "item_id": "Primary identifier for order items",
+        "order_id": "Foreign key reference to the parent order",
+        "product_id": "Foreign key reference to the ordered product",
+        "quantity": "Number of units ordered for this product",
+        "unit_price": "Price per unit at the time of order",
+        "total_price": "Total price for this line item (quantity × unit_price)"
+      }
+    },
+    "categories": {
+      "description": "Product categories for organizing and classifying products",
+      "columns": {
+        "category_id": "Primary identifier for product categories",
+        "name": "Category name for display and navigation",
+        "description": "Detailed description of the category",
+        "parent_category_id": "Foreign key for hierarchical category structure"
+      }
+    }
+  }
+}
