@@ -10,6 +10,6 @@ public class DbSchemaDocApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(DbSchemaDocApplication.class, args);
-	}
+ 	}
 
 }

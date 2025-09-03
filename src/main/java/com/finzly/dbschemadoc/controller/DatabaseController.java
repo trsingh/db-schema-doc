@@ -1,8 +1,6 @@
 package com.finzly.dbschemadoc.controller;
 
-import com.finzly.dbschemadoc.model.DatabaseSchema;
 import com.finzly.dbschemadoc.service.DatabaseMetadataService;
-import com.finzly.dbschemadoc.service.DatabaseSchemaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,11 +18,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/database")
 @RequiredArgsConstructor
-@Tag(name = "Database Metadata", description = "Operations for retrieving database schema information")
+@Tag(name = "Database Metadata", description = "Retrieve detailed database metadata including schemas, tables, columns, and constraints")
 public class DatabaseController {
 
     private final DatabaseMetadataService databaseMetadataService;
-    private final DatabaseSchemaService databaseSchemaService;
 
     @GetMapping("/info")
     @Operation(summary = "Get database information", description = "Retrieve basic database connection and version information")
@@ -66,10 +63,5 @@ public class DatabaseController {
         return ResponseEntity.ok(primaryKeys);
     }
 
-    @GetMapping("/schema/json")
-    @Operation(summary = "Get complete database schema", description = "Retrieve complete database schema with tables, columns, and constraints as JSON")
-    public ResponseEntity<DatabaseSchema> getSchemaAsJson() {
-        DatabaseSchema schema = databaseSchemaService.fetchSchema();
-        return ResponseEntity.ok(schema);
-    }
+
 }

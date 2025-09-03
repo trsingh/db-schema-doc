@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Schema Documentation API</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.19.0/swagger-ui.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            background: #fafafa;
+        }
+        
+        /* COMPREHENSIVE FIX for vertical text issue */
+        
+        /* Reset all text orientation properties */
+        .swagger-ui *,
+        .swagger-ui *::before,
+        .swagger-ui *::after {
+            writing-mode: horizontal-tb !important;
+            text-orientation: mixed !important;
+            direction: ltr !important;
+            unicode-bidi: normal !important;
+        }
+        
+        /* Specific fixes for operation blocks */
+        .swagger-ui .opblock .opblock-summary {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+        }
+        
+        .swagger-ui .opblock .opblock-summary-method {
+            text-align: center !important;
+            min-width: 80px !important;
+            border-radius: 3px !important;
+            background: #61affe !important;
+            color: white !important;
+            font-family: sans-serif !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
+            padding: 6px 15px !important;
+            margin-right: 15px !important;
+        }
+        
+        .swagger-ui .opblock .opblock-summary-path {
+            font-family: "Source Code Pro", Monaco, Menlo, Consolas, "Ubuntu Mono", monospace !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            color: #3b4151 !important;
+            margin-right: 10px !important;
+            flex-shrink: 0 !important;
+            word-break: normal !important;
+            white-space: nowrap !important;
+        }
+        
+        .swagger-ui .opblock .opblock-summary-description {
+            color: #3b4151 !important;
+            font-family: sans-serif !important;
+            font-size: 14px !important;
+            flex: 1 !important;
+        }
+        
+        /* Force GET method styling */
+        .swagger-ui .opblock.opblock-get .opblock-summary-method {
+            background: #61affe !important;
+        }
+        
+        /* Force POST method styling */
+        .swagger-ui .opblock.opblock-post .opblock-summary-method {
+            background: #49cc90 !important;
+        }
+        
+        /* Force PUT method styling */
+        .swagger-ui .opblock.opblock-put .opblock-summary-method {
+            background: #fca130 !important;
+        }
+        
+        /* Force DELETE method styling */
+        .swagger-ui .opblock.opblock-delete .opblock-summary-method {
+            background: #f93e3e !important;
+        }
+        
+        /* Additional safety measures */
+        .swagger-ui .opblock-summary-path span,
+        .swagger-ui .opblock-summary-path code,
+        .swagger-ui .opblock-summary-path div {
+            display: inline !important;
+            writing-mode: horizontal-tb !important;
+            text-orientation: mixed !important;
+        }
+        
+        /* Container fixes */
+        .swagger-ui .wrapper {
+            max-width: none !important;
+            padding: 0 20px !important;
+        }
+        
+        .swagger-ui .info {
+            margin: 20px 0 !important;
+        }
+        
+        .swagger-ui .info .title {
+            font-size: 36px !important;
+            margin: 0 0 20px !important;
+            color: #3b4151 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    
+    <script src="https://unpkg.com/swagger-ui-dist@4.19.0/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@4.19.0/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.onload = function() {
+            console.log("Loading custom Swagger UI...");
+            
+            // Initialize Swagger UI with specific version that works better
+            const ui = SwaggerUIBundle({
+                url: window.location.origin + '/v3/api-docs',
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                tryItOutEnabled: true,
+                filter: true,
+                operationsSorter: "method",
+                tagsSorter: "alpha",
+                docExpansion: "list",
+                defaultModelsExpandDepth: 2,
+                defaultModelExpandDepth: 2,
+                displayRequestDuration: true,
+                onComplete: function() {
+                    console.log("Swagger UI initialized successfully");
+                    setTimeout(applyFinalFixes, 500);
+                    setTimeout(applyFinalFixes, 1500);
+                    setTimeout(applyFinalFixes, 3000);
+                },
+                onFailure: function(error) {
+                    console.error("Swagger UI failed to load:", error);
+                }
+            });
+
+            function applyFinalFixes() {
+                console.log("Applying final text orientation fixes...");
+                
+                // Get all elements that might have text orientation issues
+                const problematicElements = document.querySelectorAll('.swagger-ui *');
+                
+                problematicElements.forEach(el => {
+                    const style = window.getComputedStyle(el);
+                    if (style.writingMode !== 'horizontal-tb' || 
+                        style.textOrientation !== 'mixed') {
+                        el.style.writingMode = 'horizontal-tb';
+                        el.style.textOrientation = 'mixed';
+                        el.style.direction = 'ltr';
+                        el.style.unicodeBidi = 'normal';
+                    }
+                });
+                
+                // Specifically target operation summary paths
+                const pathElements = document.querySelectorAll('.opblock-summary-path, .opblock-summary-path *, [class*="path"]');
+                pathElements.forEach(el => {
+                    el.style.writingMode = 'horizontal-tb';
+                    el.style.textOrientation = 'mixed';
+                    el.style.direction = 'ltr';
+                    el.style.display = el.tagName.toLowerCase() === 'span' ? 'inline' : el.style.display;
+                });
+                
+                console.log("Text orientation fixes applied");
+            }
+            
+            // Watch for DOM changes and reapply fixes
+            const observer = new MutationObserver((mutations) => {
+                let needsFix = false;
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        needsFix = true;
+                    }
+                });
+                if (needsFix) {
+                    setTimeout(applyFinalFixes, 100);
+                }
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        };
+    </script>
+</body>
+</html>

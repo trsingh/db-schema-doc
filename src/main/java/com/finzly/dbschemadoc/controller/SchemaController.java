@@ -33,7 +33,7 @@ import java.io.IOException;
 @RequestMapping("/schema")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Schema Reports", description = "Database Schema Documentation API - Generate comprehensive reports in multiple formats (JSON, HTML, DOCX)")
+@Tag(name = "Schema Reports", description = "Generate comprehensive database schema reports in multiple formats")
 public class SchemaController {
 
     private final DatabaseSchemaService databaseSchemaService;
@@ -55,26 +55,8 @@ public class SchemaController {
                 schema = @Schema(implementation = DatabaseSchema.class),
                 examples = @ExampleObject(
                     name = "Database Schema Example",
-                    description = "Example database schema with tables and columns",
-                    value = "{\n" +
-                           "  \"databaseName\": \"galaxy_compliance_mcbankny\",\n" +
-                           "  \"databaseProductName\": \"MySQL\",\n" +
-                           "  \"userName\": \"root\",\n" +
-                           "  \"tables\": [\n" +
-                           "    {\n" +
-                           "      \"tableName\": \"users\",\n" +
-                           "      \"tableType\": \"TABLE\",\n" +
-                           "      \"columns\": [\n" +
-                           "        {\n" +
-                           "          \"columnName\": \"id\",\n" +
-                           "          \"dataType\": \"BIGINT\",\n" +
-                           "          \"nullable\": false,\n" +
-                           "          \"isPrimaryKey\": true\n" +
-                           "        }\n" +
-                           "      ]\n" +
-                           "    }\n" +
-                           "  ]\n" +
-                           "}"
+                    description = "Example database schema response",
+                    value = "{\"databaseName\":\"galaxy_compliance_mcbankny\",\"databaseProductName\":\"MySQL\",\"userName\":\"root\",\"tables\":[{\"tableName\":\"users\",\"tableType\":\"TABLE\",\"columns\":[{\"columnName\":\"id\",\"dataType\":\"BIGINT\",\"nullable\":false,\"isPrimaryKey\":true}]}]}"
                 )
             )
         ),
@@ -113,7 +95,7 @@ public class SchemaController {
                 examples = @ExampleObject(
                     name = "HTML Schema Report",
                     description = "HTML formatted database schema report",
-                    value = "<!DOCTYPE html>\n<html>\n<head>\n<title>Database Schema Report</title>\n</head>\n<body>\n<h1>MySQL Database Schema</h1>\n<h2>users</h2>\n<table>\n<tr><th>Column</th><th>Type</th><th>Constraints</th></tr>\n<tr><td>id</td><td>BIGINT</td><td>PRIMARY KEY</td></tr>\n</table>\n</body>\n</html>"
+                    value = "<!DOCTYPE html><html><head><title>Database Schema Report</title></head><body><h1>Database Schema</h1><h2>Tables</h2><table><tr><th>Column</th><th>Type</th><th>Constraints</th></tr></table></body></html>"
                 )
             )
         ),

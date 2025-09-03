@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Schema Documentation API</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 40px;
+            background-color: #fafafa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #3b4151;
+            margin-bottom: 20px;
+        }
+        .description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .link-group {
+            margin: 20px 0;
+        }
+        .link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #61affe;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px 10px 5px 0;
+            font-weight: 500;
+        }
+        .link:hover {
+            background: #4e90fe;
+        }
+        .link.secondary {
+            background: #49cc90;
+        }
+        .link.secondary:hover {
+            background: #3db87a;
+        }
+        .feature {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #61affe;
+            border-radius: 0 4px 4px 0;
+        }
+        .feature h3 {
+            margin: 0 0 8px 0;
+            color: #3b4151;
+        }
+        .feature p {
+            margin: 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Database Schema Documentation API</h1>
+        <div class="description">
+            <p>Comprehensive database schema extraction and reporting API. Extract complete database metadata including tables, columns, keys, and constraints. Generate reports in multiple formats: JSON for API integration, HTML for web viewing, and DOCX for professional documentation.</p>
+        </div>
+        
+        <div class="link-group">
+            <h2>API Documentation</h2>
+            <a href="/swagger-ui-custom.html" class="link">📊 Swagger UI (Fixed)</a>
+            <a href="/v3/api-docs" class="link secondary">📋 OpenAPI JSON</a>
+        </div>
+        
+        <div class="link-group">
+            <h2>Schema Reports</h2>
+            <a href="/schema/json" class="link">🔗 JSON Schema</a>
+            <a href="/schema/html" class="link">🌐 HTML Report</a>
+            <a href="/schema/docx" class="link">📄 DOCX Download</a>
+        </div>
+        
+        <div class="feature">
+            <h3>🚀 Key Features</h3>
+            <p>Complete schema extraction, multiple export formats, read-only operations, and rich documentation with external descriptions.</p>
+        </div>
+        
+        <div class="feature">
+            <h3>🔒 Security</h3>
+            <p>Database connections are configured as read-only. No DDL or DML operations are performed. Only metadata queries are executed.</p>
+        </div>
+        
+        <div class="feature">
+            <h3>📖 Usage</h3>
+            <p>Use /schema/json for programmatic access, /schema/html for web-based viewing, and /schema/docx for downloadable documentation.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-redirect to Swagger UI after 3 seconds
+        setTimeout(function() {
+            window.location.href = '/swagger-ui-custom.html';
+        }, 3000);
+        
+        // Show countdown
+        let countdown = 3;
+        const countdownElement = document.createElement('div');
+        countdownElement.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #61affe; color: white; padding: 10px 15px; border-radius: 4px; font-weight: bold;';
+        countdownElement.textContent = `Redirecting to API docs in ${countdown}s`;
+        document.body.appendChild(countdownElement);
+        
+        const interval = setInterval(function() {
+            countdown--;
+            if (countdown > 0) {
+                countdownElement.textContent = `Redirecting to API docs in ${countdown}s`;
+            } else {
+                clearInterval(interval);
+                countdownElement.textContent = 'Redirecting...';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

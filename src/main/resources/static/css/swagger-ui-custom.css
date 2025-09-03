@@ -1,0 +1,100 @@
+/* Swagger UI Vertical Text Fix - Comprehensive Solution */
+
+/* CRITICAL: Fix the main vertical text rendering issue */
+.swagger-ui .opblock .opblock-summary-path,
+.swagger-ui .opblock .opblock-summary-path span,
+.swagger-ui .opblock .opblock-summary-path code,
+.swagger-ui .opblock .opblock-summary-path *,
+.swagger-ui span[data-path],
+.swagger-ui .opblock-summary-path-description-wrapper,
+.swagger-ui .opblock-summary .opblock-summary-path,
+.swagger-ui .opblock-summary .opblock-summary-path > span {
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+    direction: ltr !important;
+    unicode-bidi: normal !important;
+    word-break: normal !important;
+    white-space: nowrap !important;
+    display: inline !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    font-family: monospace !important;
+}
+
+/* Force horizontal layout for operation summaries */
+.swagger-ui .opblock .opblock-summary {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+}
+
+/* Specific fix for path elements */
+.swagger-ui .opblock-summary-path-description-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex: 1 !important;
+    overflow: hidden !important;
+}
+
+/* Override any CSS that might cause vertical text */
+.swagger-ui * {
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+}
+
+/* Method button styling */
+.swagger-ui .opblock .opblock-summary-method {
+    min-width: 80px !important;
+    max-width: 80px !important;
+    text-align: center !important;
+    margin-right: 15px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Path text styling */
+.swagger-ui .opblock .opblock-summary-path {
+    font-family: "Source Code Pro", Monaco, Menlo, Consolas, "Ubuntu Mono", monospace !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    margin-right: 15px !important;
+    flex-shrink: 0 !important;
+    max-width: 400px !important;
+    overflow: visible !important;
+}
+
+/* Description styling */
+.swagger-ui .opblock .opblock-summary-description {
+    flex: 1 !important;
+    margin-left: 0 !important;
+    color: #3b4151 !important;
+    font-size: 14px !important;
+}
+
+/* Additional layout fixes */
+.swagger-ui .wrapper {
+    max-width: none !important;
+    padding: 0 20px !important;
+}
+
+.swagger-ui .info {
+    margin: 20px 0 !important;
+}
+
+.swagger-ui .opblock {
+    margin: 5px 0 !important;
+    border-radius: 4px !important;
+}
+
+/* Force all text elements to display horizontally */
+.swagger-ui .opblock-summary-path span,
+.swagger-ui .opblock-summary-path code,
+.swagger-ui .opblock-summary-path div {
+    display: inline !important;
+    writing-mode: horizontal-tb !important;
+    text-orientation: mixed !important;
+}
+
+/* JavaScript fallback will handle any remaining issues */
