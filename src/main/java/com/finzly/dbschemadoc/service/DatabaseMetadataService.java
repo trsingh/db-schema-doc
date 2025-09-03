@@ -209,4 +209,47 @@ public class DatabaseMetadataService {
         
         return primaryKeys;
     }
+
+    /**
+     * Get indexes for a specific table.
+     */
+    public List<Map<String, Object>> getTableIndexes(String schemaName, String tableName) {
+        List<Map<String, Object>> indexes = new ArrayList<>();
+        
+        try (Connection connection = dataSource.getConnection()) {
+            DatabaseMetaData metaData = connection.getMetaData();
+            String productName = metaData.getDatabaseProductName().toLowerCase();
+            
+            ResultSet rs;
+            if (productName.contains("mysql")) {
+                rs = metaData.getIndexInfo(schemaName, null, tableName, false, false);
+            } else {
+                rs = metaData.getIndexInfo(null, schemaName, tableName, false, false);
+            }
+            
+            try {
+                while (rs.next()) {
+                    // Skip primary key indexes (they're already handled as primary keys)
+                    String indexName = rs.getString("INDEX_NAME");
+                    if (indexName != null && !indexName.equalsIgnoreCase("PRIMARY")) {
+                        Map<String, Object> index = new HashMap<>();
+                        index.put("indexName", indexName);
+                        index.put("columnName", rs.getString("COLUMN_NAME"));
+                        index.put("unique", !rs.getBoolean("NON_UNIQUE"));
+                        index.put("ordinalPosition", rs.getInt("ORDINAL_POSITION"));
+                        index.put("ascOrDesc", rs.getString("ASC_OR_DESC"));
+                        indexes.add(index);
+                    }
+                }
+            } finally {
+                rs.close();
+            }
+            
+            log.info("Found {} indexes for table: {}.{}", indexes.size(), schemaName, tableName);
+        } catch (SQLException e) {
+            log.error("Error retrieving indexes for table {}.{}: {}", schemaName, tableName, e.getMessage());
+        }
+        
+        return indexes;
+    }
 }

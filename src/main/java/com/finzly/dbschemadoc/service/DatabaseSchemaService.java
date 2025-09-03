@@ -741,6 +741,7 @@ public class DatabaseSchemaService {
         List<ColumnSchema> columns = new ArrayList<>();
         List<String> primaryKeys = new ArrayList<>();
         List<TableSchema.ForeignKey> foreignKeys = new ArrayList<>();
+        List<TableSchema.IndexInfo> indexes = new ArrayList<>();
         
         // Get columns with optimized query
         String productName = metaData.getDatabaseProductName().toLowerCase();
@@ -783,6 +784,65 @@ public class DatabaseSchemaService {
             log.debug("Could not retrieve primary keys for {}.{}: {}", schemaName, tableName, e.getMessage());
         }
         
+        // Get indexes
+        try (ResultSet indexRs = productName.contains("mysql") ?
+             metaData.getIndexInfo(schemaName, null, tableName, false, false) :
+             metaData.getIndexInfo(null, schemaName, tableName, false, false)) {
+            
+            Map<String, TableSchema.IndexInfo.IndexInfoBuilder> indexBuilders = new HashMap<>();
+            
+            while (indexRs.next()) {
+                String indexName = indexRs.getString("INDEX_NAME");
+                String columnName = indexRs.getString("COLUMN_NAME");
+                
+                // Skip primary key indexes and null index names
+                if (indexName != null && !indexName.equalsIgnoreCase("PRIMARY") && columnName != null) {
+                    boolean unique = !indexRs.getBoolean("NON_UNIQUE");
+                    int ordinalPosition = indexRs.getInt("ORDINAL_POSITION");
+                    
+                    indexBuilders.computeIfAbsent(indexName, k -> 
+                        TableSchema.IndexInfo.builder()
+                            .indexName(indexName)
+                            .unique(unique)
+                            .columns(new ArrayList<>())
+                    );
+                    
+                    // Add column to the index (maintain order by ordinal position)
+                    TableSchema.IndexInfo.IndexInfoBuilder builder = indexBuilders.get(indexName);
+                    List<String> indexColumns = builder.build().getColumns();
+                    if (indexColumns == null) {
+                        indexColumns = new ArrayList<>();
+                        builder.columns(indexColumns);
+                    }
+                    
+                    // Insert column at correct position
+                    while (indexColumns.size() < ordinalPosition) {
+                        indexColumns.add(null);
+                    }
+                    if (ordinalPosition > 0 && ordinalPosition <= indexColumns.size()) {
+                        indexColumns.set(ordinalPosition - 1, columnName);
+                    } else {
+                        indexColumns.add(columnName);
+                    }
+                }
+            }
+            
+            // Build final index list
+            for (TableSchema.IndexInfo.IndexInfoBuilder builder : indexBuilders.values()) {
+                TableSchema.IndexInfo indexInfo = builder.build();
+                // Remove any null entries from columns list
+                if (indexInfo.getColumns() != null) {
+                    indexInfo.getColumns().removeIf(Objects::isNull);
+                    if (!indexInfo.getColumns().isEmpty()) {
+                        indexes.add(indexInfo);
+                    }
+                }
+            }
+            
+        } catch (SQLException e) {
+            log.debug("Could not retrieve indexes for {}.{}: {}", schemaName, tableName, e.getMessage());
+        }
+        
         // Skip foreign keys for now to improve performance
         // They can be added later if needed
         
@@ -794,6 +854,7 @@ public class DatabaseSchemaService {
                 .columns(columns)
                 .primaryKeys(primaryKeys)
                 .foreignKeys(foreignKeys)
+                .indexes(indexes)
                 .build();
     }
 }

@@ -35,6 +35,9 @@ public class TableSchema {
     @Schema(description = "List of foreign key relationships")
     private List<ForeignKey> foreignKeys;
     
+    @Schema(description = "List of indexes on this table")
+    private List<IndexInfo> indexes;
+    
     @Data
     @Builder
     @Schema(description = "Foreign key relationship information")
@@ -51,5 +54,23 @@ public class TableSchema {
         
         @Schema(description = "Foreign key constraint name", example = "fk_user_department")
         private String constraintName;
+    }
+    
+    @Data
+    @Builder
+    @Schema(description = "Database index information")
+    public static class IndexInfo {
+        
+        @Schema(description = "Index name", example = "idx_user_email")
+        private String indexName;
+        
+        @Schema(description = "List of column names in the index", example = "email")
+        private List<String> columns;
+        
+        @Schema(description = "Whether the index is unique", example = "true")
+        private boolean unique;
+        
+        @Schema(description = "Index type or method", example = "BTREE")
+        private String indexType;
     }
 }

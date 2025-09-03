@@ -4,6 +4,7 @@ import com.finzly.dbschemadoc.model.DatabaseSchema;
 import com.finzly.dbschemadoc.service.DatabaseSchemaService;
 import com.finzly.dbschemadoc.service.DocxReportService;
 import com.finzly.dbschemadoc.service.HtmlReportService;
+import com.finzly.dbschemadoc.service.DdlGenerationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -39,6 +40,7 @@ public class SchemaController {
     private final DatabaseSchemaService databaseSchemaService;
     private final HtmlReportService htmlReportService;
     private final DocxReportService docxReportService;
+    private final DdlGenerationService ddlGenerationService;
 
     @GetMapping(value = "/json", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
@@ -163,6 +165,92 @@ public class SchemaController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .body(docxReport);
+    }
+
+    @GetMapping(value = "/ddl", produces = MediaType.TEXT_PLAIN_VALUE)
+    @Operation(
+        summary = "Get complete database schema as DDL script",
+        description = "Generate and retrieve the entire database schema as DDL (Data Definition Language) script. The script includes CREATE TABLE statements with columns, primary keys, foreign keys, and constraints to recreate the complete database structure. This is useful for database migration, backup, or replication purposes.",
+        operationId = "getSchemaAsDdl"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully generated DDL script",
+            content = @Content(
+                mediaType = MediaType.TEXT_PLAIN_VALUE,
+                examples = @ExampleObject(
+                    name = "DDL Script Example",
+                    description = "Example DDL script output",
+                    value = "-- DDL Script for Database: galaxy_compliance_mcbankny\n-- Generated from MySQL 8.0.28\n\nCREATE TABLE users (\n    id BIGINT NOT NULL,\n    username VARCHAR(50) NOT NULL,\n    email VARCHAR(100),\n    PRIMARY KEY (id)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\n-- Foreign Key Constraints\nALTER TABLE users ADD CONSTRAINT fk_users_department FOREIGN KEY (department_id) REFERENCES departments (id);"
+                )
+            )
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal server error - Failed to generate DDL script",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON_VALUE,
+                examples = @ExampleObject(
+                    name = "Error Response",
+                    value = "{\"error\": \"Failed to generate DDL script\", \"timestamp\": \"2023-12-01T10:00:00Z\"}"
+                )
+            )
+        )
+    })
+    public ResponseEntity<String> getSchemaAsDdl(
+            @Parameter(description = "Schema name (optional, uses default if not provided)", example = "galaxy_compliance_mcbankny")
+            @RequestParam(required = false) String schema) {
+        log.info("Generating DDL script for schema: {}", schema);
+        DatabaseSchema databaseSchema = databaseSchemaService.fetchSchema(schema);
+        String ddlScript = ddlGenerationService.generateDdlScript(databaseSchema);
+        
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(ddlScript);
+    }
+
+    @GetMapping(value = "/ddl/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @Operation(
+        summary = "Download complete database schema as SQL file",
+        description = "Generate and download the entire database schema as a SQL file containing DDL statements. The file includes CREATE TABLE statements with columns, primary keys, foreign keys, and constraints to recreate the complete database structure.",
+        operationId = "downloadSchemaAsSql"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successfully generated and returned SQL file",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                schema = @Schema(type = "string", format = "binary", description = "SQL file content as binary data")
+            ),
+            headers = {
+                @io.swagger.v3.oas.annotations.headers.Header(
+                    name = "Content-Disposition",
+                    description = "Attachment header with filename",
+                    schema = @Schema(type = "string", example = "attachment; filename=\"database_schema_galaxy_compliance_mcbankny_1693776000000.sql\"")
+                )
+            }
+        ),
+        @ApiResponse(
+            responseCode = "500",
+            description = "Internal server error - Failed to generate SQL file",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+        )
+    })
+    public ResponseEntity<byte[]> downloadSchemaAsSql(
+            @Parameter(description = "Schema name (optional, uses default if not provided)", example = "galaxy_compliance_mcbankny")
+            @RequestParam(required = false) String schema) {
+        log.info("Generating SQL file download for schema: {}", schema);
+        DatabaseSchema databaseSchema = databaseSchemaService.fetchSchema(schema);
+        String ddlScript = ddlGenerationService.generateDdlScript(databaseSchema);
+        
+        String filename = "database_schema_" + (schema != null ? schema : databaseSchema.getDatabaseName()) + "_" + getCurrentTimestamp() + ".sql";
+        
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(ddlScript.getBytes());
     }
 
     private String getCurrentTimestamp() {
