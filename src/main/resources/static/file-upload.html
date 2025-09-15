@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL File Upload - Database Schema Export</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="file"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[type="file"]:focus, input[type="text"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .info-box {
+            background-color: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        pre {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        .links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .links a {
+            color: #007bff;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SQL File Upload for CSV Export</h1>
+        <p class="subtitle">Upload a .sql file containing a SELECT query to export data to CSV</p>
+        
+        <div class="info-box">
+            <strong>Instructions:</strong>
+            <ul>
+                <li>Upload a <code>.sql</code> or <code>.txt</code> file containing a SELECT query</li>
+                <li>Only SELECT statements are allowed for security</li>
+                <li>Comments and multi-line formatting are preserved</li>
+                <li>Large datasets are automatically split into multiple CSV files</li>
+            </ul>
+        </div>
+
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="sqlFile">SQL File:</label>
+                <input type="file" id="sqlFile" name="sqlFile" accept=".sql,.txt" required>
+            </div>
+
+            <div class="form-group">
+                <label for="exportName">Export Name:</label>
+                <input type="text" id="exportName" name="exportName" 
+                       placeholder="e.g., user_data_export" required>
+            </div>
+
+            <button type="submit" id="submitBtn">Upload and Export</button>
+            <button type="button" id="clearBtn" onclick="clearForm()">Clear</button>
+        </form>
+
+        <div id="response" class="response"></div>
+
+        <div class="links">
+            <a href="/swagger-ui.html">View Swagger Documentation</a>
+            <a href="/api/export/available-tables">Get Available Tables (JSON)</a>
+            <a href="/">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const response = document.getElementById('response');
+            const formData = new FormData();
+            
+            const fileInput = document.getElementById('sqlFile');
+            const exportNameInput = document.getElementById('exportName');
+            
+            if (!fileInput.files[0]) {
+                showResponse('Please select a SQL file', 'error');
+                return;
+            }
+            
+            if (!exportNameInput.value.trim()) {
+                showResponse('Please enter an export name', 'error');
+                return;
+            }
+            
+            formData.append('sqlFile', fileInput.files[0]);
+            formData.append('exportName', exportNameInput.value.trim());
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Uploading...';
+            showResponse('Uploading file and processing query...', 'loading');
+            
+            try {
+                const result = await fetch('/api/export/csv/custom-query-file', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await result.json();
+                
+                if (data.success) {
+                    let message = `✅ Export completed successfully!\n\n`;
+                    message += `📁 Files generated: ${data.filesGenerated}\n`;
+                    message += `📊 Records exported: ${data.estimatedRecords || 'N/A'}\n`;
+                    message += `⏱️ Execution time: ${data.executionTimeMs || 'N/A'}ms\n`;
+                    if (data.filePaths && data.filePaths.length > 0) {
+                        message += `\n📂 File paths:\n${data.filePaths.join('\n')}`;
+                    }
+                    showResponse(message, 'success');
+                } else {
+                    showResponse(`❌ Export failed:\n${data.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showResponse(`❌ Upload failed:\n${error.message}`, 'error');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Upload and Export';
+            }
+        });
+        
+        function showResponse(message, type) {
+            const response = document.getElementById('response');
+            response.className = `response ${type}`;
+            response.style.display = 'block';
+            response.innerHTML = `<pre>${message}</pre>`;
+            response.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function clearForm() {
+            document.getElementById('uploadForm').reset();
+            document.getElementById('response').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

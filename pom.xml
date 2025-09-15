@@ -87,6 +87,13 @@
 			<version>1.17.2</version>
 		</dependency>
 
+		<!-- CSV Processing -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+
 		<!-- Code Generation -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
